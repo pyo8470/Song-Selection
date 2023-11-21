@@ -1,33 +1,33 @@
-
-
 name: Deploy to cloudtype
 on:
-  pull_request:
-    branches: [ "main" ]
+  push:
+    branches:
+      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source
+      - name: Checkout
         uses: actions/checkout@v2
-      - name: Connect
+      - name: Connect deploy key
         uses: cloudtype-github-actions/connect@v1
         with:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
           ghtoken: ${{ secrets.GHP_TOKEN }}
-          scope: cloudtype-ex
       - name: Deploy
         uses: cloudtype-github-actions/deploy@v1
         with:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
-          project: cloudtype-ex/react-abc
-          yaml: |-
-            name: vite-react
-            app: web
+          project: cgantro/14fret
+          stage: main
+          yaml: |
+            name: song-selection-14fret
+            app: java@17
             options:
-              nodeversion: "16"
-              docbase: /dist
+              ports: "8080"
+              start: java -jar -Dspring.profiles.active=local
+                ./build/libs/14fret-0.0.1-SNAPSHOT.jar
             context:
               git:
-                ref: ${{ github.ref }}
                 url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
