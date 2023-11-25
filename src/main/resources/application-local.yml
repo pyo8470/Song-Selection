@@ -1,4 +1,14 @@
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 232398614438-4laehmm9vibdvaa8hv57miuvgpkv33kj.apps.googleusercontent.com
+            clientSecret: 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
+            scope:
+              - email
+              - profile
   config:
     activate:
       on-profile: local
@@ -19,6 +29,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  data:
+    redis:
+      port: 6379
+      host: localhost
 
 logging:
   level:
