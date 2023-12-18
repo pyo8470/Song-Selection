@@ -5,6 +5,7 @@ import Selection.fret.global.security.auth.utils.CustomAuthorityUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,25 +36,23 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         try{
             Map<String,Object > claims =verifyJws(request);
             setAuthenticationToContext(claims);
-        }catch (ExpiredJwtException je){
-            request.setAttribute("exception",je);
-        }catch (Exception e){
+        } catch (Exception e){
             request.setAttribute("exception",e);
         }
+        filterChain.doFilter(request,response);
     }
     // 만약 request에 전달받은 authorization이 없으면 해당 필터는 실행안함
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
-
+        Cookie[] cookie = request.getCookies();
         return authorization == null || !authorization.startsWith("Bearer");
     }
 
     private Map<String,Object> verifyJws(HttpServletRequest request){
         String jws = request.getHeader("Authorization").replace("Bearer ","");
         try {
-            Map<String,Object> claims = jwtTokenizer.verifySignature(jws).getBody();
-            return claims;
+            return jwtTokenizer.verifySignature(jws).getBody();
         }catch (Exception e){
             request.setAttribute("exception",e);
             throw e;

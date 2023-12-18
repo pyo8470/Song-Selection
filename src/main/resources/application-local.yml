@@ -20,8 +20,7 @@ spring:
   h2:
     console:
       enabled: true
-  hibernate:
-    dialect: org.hibernate.dialect.H2Dialect
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -29,6 +28,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
 
   data:
     redis:
