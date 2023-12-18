@@ -6,6 +6,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.DateTimeException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 @Component
@@ -36,7 +34,10 @@ public class JwtTokenizer {
     @Getter
     @Value("${jwt.refresh-token-expiration-minutes}")
     private int refreshTokenExpirationMinutes;
-
+    @PostConstruct
+    protected void init(){
+        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_16));
+    }
     public  String encodeBase64SecretKey(){
         return Encoders.BASE64.encode(this.secretKey.getBytes(StandardCharsets.UTF_8));
     }
@@ -53,7 +54,7 @@ public class JwtTokenizer {
                 .setSubject(subject)
                 .setIssuedAt(Calendar.getInstance().getTime())
                 .setExpiration(expiration)
-                .signWith(SignatureAlgorithm.HS256, key)
+                .signWith(key,SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -87,9 +88,8 @@ public class JwtTokenizer {
     public Date getTokenExpiration(int expirationMinutes) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, expirationMinutes);
-        Date expiration = calendar.getTime();
 
-        return expiration;
+        return calendar.getTime();
     }
 
     private Key getKeyFromBase64EncodedKey(String base64EncodedSecretKey) {

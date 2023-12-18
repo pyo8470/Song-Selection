@@ -19,7 +19,12 @@ import java.util.List;
 @AllArgsConstructor
 public class Member {
     @Id
+    @Column(name = "member_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long memberId;
+
     @Email
+    @Column(unique = true)
     private String email;
 
     @NotNull
@@ -36,8 +41,6 @@ public class Member {
     @Column
     private String birth;
 
-    @Column
-    private String address;
     @Column
     private String img;
 
@@ -60,7 +63,6 @@ public class Member {
         }
     }
     public enum Provider{
-        GOOGLE,
-        KAKAO
+        GOOGLE,KAKAO
     }
 }

@@ -5,6 +5,8 @@ import Selection.fret.domain.member.service.MemberService;
 import Selection.fret.global.jwt.JwtTokenizer;
 import Selection.fret.global.security.auth.filter.JwtAuthenticationFilter;
 import Selection.fret.global.security.auth.filter.JwtVerificationFilter;
+import Selection.fret.global.security.auth.handler.MemberAccessDeniedHandler;
+import Selection.fret.global.security.auth.handler.MemberAuthenticationEntryPoint;
 import Selection.fret.global.security.auth.handler.MemberAuthenticationFailureHandler;
 import Selection.fret.global.security.auth.handler.MemberAuthenticationSuccessHandler;
 import Selection.fret.global.security.auth.utils.CustomAuthorityUtils;
@@ -12,6 +14,7 @@ import Selection.fret.global.security.token.repository.RefreshTokenRepository;
 import Selection.fret.global.security.token.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Configuration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -41,11 +45,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration  {
 
-//    @Value("${spring.security.oauth2.client.registration.google.clientId}")  // (1)
-//    private String clientId;
-//
-//    @Value("${spring.security.oauth2.client.registration.google.clientSecret}") // (2)
-//    private String clientSecret;
+    @Value("${spring.security.oauth2.client.registration.google.clientId}")  // (1)
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.clientSecret}") // (2)
+    private String clientSecret;
     private final JwtTokenizer jwtTokenizer;
     private final MemberRepository memberRepository;
     private final CustomAuthorityUtils authorityUtils;
@@ -59,8 +63,21 @@ public class SecurityConfiguration  {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .formLogin().disable()
-                .httpBasic().disable();
-
+                .httpBasic().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(new MemberAuthenticationEntryPoint())
+                .accessDeniedHandler(new MemberAccessDeniedHandler())
+                .and()
+                .apply(new CustomFilterConfigurer())
+                .and()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PathRequest.toH2Console()).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/users/signup")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/users/login")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/users/logout")).hasAnyRole("USER", "ADMIN")
+                        .anyRequest().permitAll()
+                )
+                .logout().permitAll();
         return httpSecurity.build();
     }
 
@@ -77,7 +94,7 @@ public class SecurityConfiguration  {
 
 
 
-            jwtAuthenticationFilter.setFilterProcessesUrl("/users/login");
+            jwtAuthenticationFilter.setFilterProcessesUrl("/api/users/login");
             // Exception 추가
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler());
             jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());
@@ -89,23 +106,23 @@ public class SecurityConfiguration  {
                     .addFilter(jwtAuthenticationFilter)
                     .addFilterAfter(jwtVerificationFilter, OAuth2LoginAuthenticationFilter.class);
         }
-//        @Bean
-//        public ClientRegistrationRepository clientRegistrationRepository() {
-//            var clientRegistration = clientRegistration();    // (3-1)
-//            return new InMemoryClientRegistrationRepository(clientRegistration);   // (3-2)
-//        }
-//
-//        // (4)
-//        private ClientRegistration clientRegistration() {
-//            // (4-1)
-//            return CommonOAuth2Provider
-//                    .GOOGLE
-//                    .getBuilder("google")
-//                    .clientId(clientId)
-//                    .clientSecret(clientSecret)
-//                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                    .scope("openid", "profile", "email")
-//                    .build();
-//        }
+        @Bean
+        public ClientRegistrationRepository clientRegistrationRepository() {
+            var clientRegistration = clientRegistration();    // (3-1)
+            return new InMemoryClientRegistrationRepository(clientRegistration);   // (3-2)
+        }
+
+        // (4)
+        private ClientRegistration clientRegistration() {
+            // (4-1)
+            return CommonOAuth2Provider
+                    .GOOGLE
+                    .getBuilder("google")
+                    .clientId(clientId)
+                    .clientSecret(clientSecret)
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .scope("openid", "profile", "email")
+                    .build();
+        }
     }
 }
