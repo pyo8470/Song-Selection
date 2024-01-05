@@ -1,6 +1,8 @@
 package Selection.fret.global.security.config;
 
+import Selection.fret.domain.member.mapper.MemberMapper;
 import Selection.fret.domain.member.repository.MemberRepository;
+import Selection.fret.domain.member.service.MemberService;
 import Selection.fret.global.jwt.JwtTokenizer;
 import Selection.fret.global.security.auth.filter.JwtAuthenticationFilter;
 import Selection.fret.global.security.auth.filter.JwtVerificationFilter;
@@ -44,9 +46,10 @@ public class SecurityConfiguration  {
     @Value("${spring.security.oauth2.client.registration.google.clientSecret}") // (2)
     private String clientSecret;
     private final JwtTokenizer jwtTokenizer;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final CustomAuthorityUtils authorityUtils;
     private final TokenService tokenService;
+    private final MemberMapper memberMapper;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -95,7 +98,7 @@ public class SecurityConfiguration  {
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
             JwtAuthenticationFilter jwtAuthenticationFilter =
-                    new JwtAuthenticationFilter(authenticationManager, jwtTokenizer, memberRepository,tokenService);
+                    new JwtAuthenticationFilter(authenticationManager, jwtTokenizer, memberService,tokenService, memberMapper);
 
             jwtAuthenticationFilter.setFilterProcessesUrl("/api/users/login");
             // Exception 추가
