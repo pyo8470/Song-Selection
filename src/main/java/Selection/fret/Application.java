@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableRedisRepositories
-@EnableJpaRepositories
+@EnableJpaRepositories(basePackages = "Selection.fret")
 @EnableScheduling
 public class Application {
 
