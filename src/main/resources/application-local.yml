@@ -45,6 +45,6 @@ mail:
   address:
     admin: admin@gmail.com
 jwt:
-  secret-key: 14fret
+  secret-key: 14fretIsVeryNiceCommunityOfKwangWoonUniversity
   access-token-expiration-minutes: 30
   refresh-token-expiration-minutes: 360
