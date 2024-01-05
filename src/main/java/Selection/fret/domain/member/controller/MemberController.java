@@ -33,12 +33,12 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberMapper memberMapper;
     @PostMapping("/signup")
-    public ResponseEntity<SingleResponseDto<String>> postMember(@Valid @RequestBody MemberDto.PostDto postDto){
+    public ResponseEntity<SingleResponseDto> postMember(@Valid @RequestBody MemberDto.PostDto postDto){
 
         Member member = memberMapper.memberPostDtoToMember(postDto);
         Member savedMember = memberService.createMember(member);
-
+        MemberDto.ResponseDto responseDto = memberMapper.memberToResponseDto(savedMember);
         return new ResponseEntity<>
-                (new SingleResponseDto<>(savedMember.getEmail()),HttpStatus.CREATED);
+                (new SingleResponseDto<>(responseDto),HttpStatus.CREATED);
     }
 }

@@ -1,5 +1,6 @@
 package Selection.fret.domain.member.entity;
 
+import Selection.fret.domain.audit.Auditable;
 import Selection.fret.global.regexp.RegexPattern;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -15,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Member {
+public class Member extends Auditable {
     @Id
     @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
