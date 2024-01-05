@@ -1,5 +1,6 @@
 package Selection.fret.domain.room.entity;
 
+import Selection.fret.domain.audit.Auditable;
 import Selection.fret.domain.member.entity.Member;
 import Selection.fret.domain.song.entity.Song;
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Room {
+public class Room extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "room_id")
@@ -20,15 +21,15 @@ public class Room {
     @Column(name = "room_name", length = 100, nullable = false)
     private String roomName;
 
-    @Column(name = "creator_id", length = 50, nullable = false, unique = true)
-    private String creatorId;
+    @Column(name = "creator_id", length = 50, nullable = false)
+    private Long creatorId;
 
     @Column(name = "creator_username", length = 50, nullable = false)
     private String creatorUsername;
 
+    
     @OneToMany(mappedBy = "room")
-    private List<Song> songs;
+    private List<RoomMember> roomMembers;
 
-    @OneToMany(mappedBy = "room")
-    private List<Member> members;
+    // 투표 컬럼은 다대다 관계가 아님
 }

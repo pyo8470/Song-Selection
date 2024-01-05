@@ -1,8 +1,10 @@
 package Selection.fret.domain.member.entity;
 
+import Selection.fret.global.regexp.RegexPattern;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,24 +31,25 @@ public class Member {
 
     @NotNull
     // 비밀번호 제약조건 : 특수문자 영어 숫자
+    @Pattern(regexp = RegexPattern.REGEXP_USER_PW_TYPE, message = "비밀번호는 영어,숫자,특수문자 조합입니다.")
     private String password;
+
     @Column(length = 100)
     private String name;
+
+    @Column
+    @Pattern(regexp =  RegexPattern.REGEXP_USER_PHONE_NUM,message = "전화번호는 010-xxxx-xxxx 형식으로 입력하세요.")
+    private String phone;
+    @Column
+    private String instrument;
+
     @Column
     private String gender;
-
-    @Column
-    private String phone;
-
-    @Column
-    private String birth;
-
-    @Column
-    private String img;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Cascade(value = org.hibernate.annotations.CascadeType.REMOVE) // Cascade 설정 추가
     private List<String> roles = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column
     private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;

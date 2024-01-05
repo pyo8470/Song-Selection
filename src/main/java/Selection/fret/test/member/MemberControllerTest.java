@@ -1,4 +1,4 @@
-package Selection.fret.test;
+package Selection.fret.test.member;
 
 import Selection.fret.domain.member.controller.MemberController;
 import Selection.fret.domain.member.dto.MemberDto;
@@ -7,6 +7,8 @@ import Selection.fret.domain.member.mapper.MemberMapper;
 import Selection.fret.domain.member.service.MemberService;
 import Selection.fret.global.response.SingleResponseDto;
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,6 +31,7 @@ public class MemberControllerTest {
     @InjectMocks
     private MemberController memberController;
 
+    // 제약조건 테스트
     @Test
     public void testPostMemberSuccess() {
         // Arrange
@@ -36,7 +39,6 @@ public class MemberControllerTest {
         // postDto의 속성을 설정하세요
         postDto.setName("김치");
         postDto.setEmail("test@gmail.com");
-
         Member member = new Member(); // 필요한 경우 Member 객체를 생성하세요
         member.setName("김치");
         member.setEmail("test@gmail.com");
@@ -57,23 +59,16 @@ public class MemberControllerTest {
         assertEquals("test@gmail.com",savedMember.getEmail());
     }
 
+    @DisplayName("사용자 추가 실패 - 이메일 형식이 아님")
     @Test
-    public void testPostMemberPasswordMismatch() {
-        // Arrange
-        MemberDto.PostDto postDto = new MemberDto.PostDto();
-        // postDto의 속성을 설정하세요
-        postDto.setPassword("1234");
-        postDto.setConformPassword("123");
-        // 비밀번호 일치 여부를 true로 설정하여 모의 객체 반환
-        when(memberService.validatePassword(postDto.getPassword(), postDto.getConformPassword())).thenReturn(true);
+    public void addUserFail_NotEmailFormat() throws Exception {
+        // given
+        final MemberDto.PostDto postDto = new MemberDto.PostDto();
 
-        // Act
-        ResponseEntity<SingleResponseDto<String>> responseEntity = memberController.postMember(postDto);
+        postDto.setPhone("010");
+        postDto.setPassword("111");
+        // when
 
-        // Assert
-        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-        // 필요에 따라 추가의 검증을 하세요
+        // then
     }
-
-    // 응용 프로그램의 로직에 따라 더 많은 테스트 케이스를 추가하세요
 }

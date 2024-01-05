@@ -34,9 +34,6 @@ public class MemberController {
     private final MemberMapper memberMapper;
     @PostMapping("/signup")
     public ResponseEntity<SingleResponseDto<String>> postMember(@Valid @RequestBody MemberDto.PostDto postDto){
-        if(memberService.validatePassword(postDto.getPassword(),postDto.getConformPassword()))
-            return new ResponseEntity<>(
-                    new SingleResponseDto<>("비밀번호와 비밀번호 확인이 서로 불일치합니다."), HttpStatus.FORBIDDEN);
 
         Member member = memberMapper.memberPostDtoToMember(postDto);
         Member savedMember = memberService.createMember(member);
