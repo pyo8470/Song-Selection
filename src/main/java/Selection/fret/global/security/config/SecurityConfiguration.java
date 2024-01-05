@@ -1,7 +1,6 @@
 package Selection.fret.global.security.config;
 
 import Selection.fret.domain.member.repository.MemberRepository;
-import Selection.fret.domain.member.service.MemberService;
 import Selection.fret.global.jwt.JwtTokenizer;
 import Selection.fret.global.security.auth.filter.JwtAuthenticationFilter;
 import Selection.fret.global.security.auth.filter.JwtVerificationFilter;
@@ -10,18 +9,13 @@ import Selection.fret.global.security.auth.handler.MemberAuthenticationEntryPoin
 import Selection.fret.global.security.auth.handler.MemberAuthenticationFailureHandler;
 import Selection.fret.global.security.auth.handler.MemberAuthenticationSuccessHandler;
 import Selection.fret.global.security.auth.utils.CustomAuthorityUtils;
-import Selection.fret.global.security.token.repository.RefreshTokenRepository;
 import Selection.fret.global.security.token.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
-import org.springframework.context.annotation.Configuration;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -38,7 +32,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 @Configuration
 @Slf4j
@@ -58,6 +51,8 @@ public class SecurityConfiguration  {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .headers().frameOptions().sameOrigin()
+                .and()
+                .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -80,7 +75,18 @@ public class SecurityConfiguration  {
                 .logout().permitAll();
         return httpSecurity.build();
     }
-
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        // 허용할 클라이언트 도메인
+        configuration.setAllowedOrigins(List.of("http://localhost:3000","https://localhost:3000","https://music-select-helper.web.app"));
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
     public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
 
 
@@ -90,9 +96,6 @@ public class SecurityConfiguration  {
 
             JwtAuthenticationFilter jwtAuthenticationFilter =
                     new JwtAuthenticationFilter(authenticationManager, jwtTokenizer, memberRepository,tokenService);
-
-
-
 
             jwtAuthenticationFilter.setFilterProcessesUrl("/api/users/login");
             // Exception 추가
