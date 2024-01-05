@@ -16,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,9 +33,10 @@ public class MemberController {
     public ResponseEntity<SingleResponseDto> postMember(@Valid @RequestBody MemberDto.PostDto postDto){
 
         Member member = memberMapper.memberPostDtoToMember(postDto);
-        Member savedMember = memberService.createMember(member);
-        MemberDto.ResponseDto responseDto = memberMapper.memberToResponseDto(savedMember);
+        memberService.createMember(member);
+
         return new ResponseEntity<>
-                (new SingleResponseDto<>(responseDto),HttpStatus.CREATED);
+                (new SingleResponseDto<>("회원 가입이 완료되었습니다."),HttpStatus.CREATED);
     }
+
 }
