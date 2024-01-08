@@ -30,7 +30,7 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberMapper memberMapper;
     @PostMapping("/signup")
-    public ResponseEntity<SingleResponseDto> postMember(@Valid @RequestBody MemberDto.PostDto postDto){
+    public ResponseEntity<SingleResponseDto<String >> postMember(@Valid @RequestBody MemberDto.PostDto postDto){
 
         Member member = memberMapper.memberPostDtoToMember(postDto);
         memberService.createMember(member);

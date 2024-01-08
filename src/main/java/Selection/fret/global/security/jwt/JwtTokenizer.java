@@ -1,4 +1,4 @@
-package Selection.fret.global.jwt;
+package Selection.fret.global.security.jwt;
 
 import Selection.fret.domain.member.entity.Member;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;

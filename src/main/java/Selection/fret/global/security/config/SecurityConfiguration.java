@@ -1,15 +1,12 @@
 package Selection.fret.global.security.config;
 
 import Selection.fret.domain.member.mapper.MemberMapper;
-import Selection.fret.domain.member.repository.MemberRepository;
+import Selection.fret.domain.member.service.CustomOAuth2Serivce;
 import Selection.fret.domain.member.service.MemberService;
-import Selection.fret.global.jwt.JwtTokenizer;
+import Selection.fret.global.security.jwt.JwtTokenizer;
 import Selection.fret.global.security.auth.filter.JwtAuthenticationFilter;
 import Selection.fret.global.security.auth.filter.JwtVerificationFilter;
-import Selection.fret.global.security.auth.handler.MemberAccessDeniedHandler;
-import Selection.fret.global.security.auth.handler.MemberAuthenticationEntryPoint;
-import Selection.fret.global.security.auth.handler.MemberAuthenticationFailureHandler;
-import Selection.fret.global.security.auth.handler.MemberAuthenticationSuccessHandler;
+import Selection.fret.global.security.auth.handler.*;
 import Selection.fret.global.security.auth.utils.CustomAuthorityUtils;
 import Selection.fret.global.security.token.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +37,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration  {
 
-    @Value("${spring.security.oauth2.client.registration.google.clientId}")  // (1)
-    private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.google.clientSecret}") // (2)
-    private String clientSecret;
     private final JwtTokenizer jwtTokenizer;
     private final MemberService memberService;
     private final CustomAuthorityUtils authorityUtils;
@@ -75,6 +68,9 @@ public class SecurityConfiguration  {
                         .requestMatchers(new AntPathRequestMatcher("/api/users/logout")).hasAnyRole("USER", "ADMIN")
                         .anyRequest().permitAll()
                 )
+                .oauth2Login(oauth -> oauth
+                        .successHandler(new OAuth2MemberSuccessHandler(authorityUtils,memberService,tokenService))
+                        .userInfoEndpoint().userService(new CustomOAuth2Serivce()))
                 .logout().permitAll();
         return httpSecurity.build();
     }
@@ -112,23 +108,6 @@ public class SecurityConfiguration  {
                     .addFilter(jwtAuthenticationFilter)
                     .addFilterAfter(jwtVerificationFilter, OAuth2LoginAuthenticationFilter.class);
         }
-        @Bean
-        public ClientRegistrationRepository clientRegistrationRepository() {
-            var clientRegistration = clientRegistration();    // (3-1)
-            return new InMemoryClientRegistrationRepository(clientRegistration);   // (3-2)
-        }
 
-        // (4)
-        private ClientRegistration clientRegistration() {
-            // (4-1)
-            return CommonOAuth2Provider
-                    .GOOGLE
-                    .getBuilder("google")
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                    .scope("openid", "profile", "email")
-                    .build();
-        }
     }
 }

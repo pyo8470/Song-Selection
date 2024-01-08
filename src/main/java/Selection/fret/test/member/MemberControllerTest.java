@@ -50,7 +50,7 @@ public class MemberControllerTest {
         when(memberService.createMember(any(Member.class))).thenReturn(savedMember);
 
         // Act
-        ResponseEntity<SingleResponseDto> responseEntity = memberController.postMember(postDto);
+        ResponseEntity<SingleResponseDto<String>> responseEntity = memberController.postMember(postDto);
 
         // Assert
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());

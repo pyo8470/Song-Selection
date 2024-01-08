@@ -1,8 +1,7 @@
 package Selection.fret.global.security.auth.filter;
 
-import Selection.fret.global.jwt.JwtTokenizer;
+import Selection.fret.global.security.jwt.JwtTokenizer;
 import Selection.fret.global.security.auth.utils.CustomAuthorityUtils;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
