@@ -11,7 +11,7 @@ spring:
               - profile
   config:
     activate:
-      on-profile: local
+      on-profile: deploy
   datasource:
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:14fret

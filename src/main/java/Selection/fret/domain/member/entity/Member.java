@@ -30,10 +30,11 @@ public class Member extends Auditable {
     @Column(unique = true)
     private String email;
 
-    @NotNull
     // 비밀번호 제약조건 : 특수문자 영어 숫자
     @Pattern(regexp = RegexPattern.REGEXP_USER_PW_TYPE, message = "비밀번호는 영어,숫자,특수문자 조합입니다.")
     private String password;
+
+    @Column String nickname;
 
     @Column(length = 100)
     private String name;
@@ -54,6 +55,10 @@ public class Member extends Auditable {
     @Enumerated(EnumType.STRING)
     @Column
     private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Provider provider;
     public enum MemberStatus{
         MEMBER_ACTIVE("활동중"),
         MEMBER_SLEEP("휴면계정"),
@@ -67,6 +72,6 @@ public class Member extends Auditable {
         }
     }
     public enum Provider{
-        GOOGLE,KAKAO
+        GOOGLE,LOCAL
     }
 }
